@@ -1,6 +1,6 @@
 float gravityAcc = 9.8f;
 float mass = 5;
-float ropeLength = 100; //centimeters
+float ropeLength = 500; //centimeters
 float radius = 20;
 float period;
 float angularVelocity;
@@ -16,7 +16,7 @@ void setup() {
   size(600, 800, P2D);
   frameRate(20);
   
-  period = TWO_PI * (float)Math.sqrt((ropeLength / 100) / gravityAcc);
+  period = TWO_PI * (float)Math.sqrt((ropeLength / 1000) / gravityAcc);
   angularVelocity = TWO_PI / period;
   
   velocity = new PVector(0, 0);
@@ -41,14 +41,21 @@ void update() {
   velocity.add(acc);
   pos.add(velocity);
   
-
+  PVector len = new PVector(pos.x - rope.x, pos.y - rope.y);
+  if (len.mag() > ropeLength)
+    len.setMag(ropeLength);
+    
+  pos.x = len.x + rope.x;
+  pos.y = len.y + rope.y;
 }
 
 void setAcc() {
-  PVector t = new PVector(pos.x - rope.x, pos.y - rope.y);
+  PVector t = new PVector(-pos.x + rope.x, pos.y - rope.y);
   PVector g = new PVector(0, gravityAcc);
-  //T = m*w^2*r;
-  t.setMag(-1*angularVelocity * angularVelocity * ropeLength / 100);
+  //T = m*v^2 / r;
+
+  t.setMag(-1*velocity.mag() * velocity.mag() / ropeLength / 1000);
+  acc.x = 0; acc.y = 0;
   acc.add(t);
   acc.add(g);
 }
