@@ -1,28 +1,19 @@
-float gravityAcc = 9.8f;
-float mass = 5;
-float ropeLength = 500; //centimeters
+float g = 9.8f;
+float ropeLength = 500;
 float radius = 20;
-float period;
-float angularVelocity;
-float elongation; //distance from the center
-float angle = 45;
 
-PVector acc;
+float angle = PI / 4;
+float angularVelocity = 0;
+float angularAcc = 0;
+
 PVector pos;
 PVector rope;
-PVector velocity;
-
 void setup() {
-  size(600, 800, P2D);
+  size(1000, 800, P2D);
   frameRate(20);
-  
-  period = TWO_PI * (float)Math.sqrt((ropeLength / 1000) / gravityAcc);
-  angularVelocity = TWO_PI / period;
-  
-  velocity = new PVector(0, 0);
-  acc = new PVector(0, 0);
+
   rope = new PVector(width / 2, 80);
-  pos = new PVector(rope.x + ropeLength * (float)Math.sin(angle), rope.y + ropeLength * (float)Math.cos(angle));
+  pos = new PVector(rope.x + ropeLength * (float)sin(angle), rope.y + ropeLength * (float)cos(angle));
 }
 
 void draw() {
@@ -37,25 +28,14 @@ void draw() {
 }
 
 void update() {
-  setAcc();
-  velocity.add(acc);
-  pos.add(velocity);
+  //T (torque) = I(moment of inertia) * a(angular acceleration);
+  //mg * sin(angle) = mr^2 * a;
+  //a = (g / r) * sin(angle);
+  angularAcc = - g / ropeLength * sin(angle);
   
-  PVector len = new PVector(pos.x - rope.x, pos.y - rope.y);
-  if (len.mag() > ropeLength)
-    len.setMag(ropeLength);
-    
-  pos.x = len.x + rope.x;
-  pos.y = len.y + rope.y;
-}
-
-void setAcc() {
-  PVector t = new PVector(-pos.x + rope.x, pos.y - rope.y);
-  PVector g = new PVector(0, gravityAcc);
-  //T = m*v^2 / r;
-
-  t.setMag(-1*velocity.mag() * velocity.mag() / ropeLength / 1000);
-  acc.x = 0; acc.y = 0;
-  acc.add(t);
-  acc.add(g);
+  angularVelocity += angularAcc;
+  angle += angularVelocity;
+  
+  pos.x = rope.x + ropeLength * (float)sin(angle);
+  pos.y = rope.y + ropeLength * (float)cos(angle);
 }
